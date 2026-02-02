@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>军事职位管理系统 - 云端多设备版</title>
+<style>
+/* 保持所有原有CSS不变 */
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:linear-gradient(135deg,#1a237e 0%,#283593 100%);min-height:100vh;padding:20px;display:flex;justify-content:center;align-items:center}
+#authContainer{max-width:400px;background:white;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.3);overflow:hidden}
+.auth-header{background:linear-gradient(to right,#d32f2f,#b71c1c);color:white;padding:30px;text-align:center}
+.auth-body{padding:40px 30px}
+.auth-title{font-size:24px;color:#333;text-align:center;margin-bottom:10px;font-weight:bold}
+.auth-subtitle{color:#666;text-align:center;margin-bottom:30px;font-size:14px}
+.secret-input{position:relative;margin-bottom:25px}
+.secret-input input{width:100%;padding:15px 20px;padding-left:50px;border:2px solid #ddd;border-radius:10px;font-size:16px;background:#f9f9f9}
+.secret-input input:focus{border-color:#d32f2f;background:white;outline:none;box-shadow:0 0 0 3px rgba(211,47,47,0.1)}
+.secret-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#d32f2f;font-size:20px}
+.auth-button{width:100%;padding:16px;background:linear-gradient(to right,#d32f2f,#b71c1c);color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:20px;transition:all 0.3s}
+.auth-button:hover{background:linear-gradient(to right,#c62828,#a10f0f);transform:translateY(-2px);box-shadow:0 5px 15px rgba(211,47,47,0.3)}
+.auth-note{background:#f8f9fa;padding:15px;border-radius:8px;border-left:4px solid #d32f2f;font-size:13px;color:#666;line-height:1.5}
+.auth-error{color:#d32f2f;margin-top:10px;padding:10px;background:#ffebee;border-radius:5px;border:1px solid #ffcdd2;text-align:center;display:none}
+.auth-success{color:#2e7d32;margin-top:10px;padding:10px;background:#e8f5e9;border-radius:5px;border:1px solid #c8e6c9;text-align:center;display:none}
+.countdown{text-align:center;color:#666;font-size:12px;margin-top:15px}
+.container{display:none;max-width:500px;background:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);overflow:hidden}
+.header{background:#1890ff;color:white;padding:20px;text-align:center}
+.body{padding:30px}
+.form-group{margin-bottom:20px}
+label{display:block;margin-bottom:8px;color:#333;font-weight:bold}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:5px;font-size:16px}
+input:focus,select:focus{border-color:#1890ff;outline:none;box-shadow:0 0 0 2px rgba(24,144,255,0.2)}
+.btn{width:100%;padding:14px;background:#1890ff;color:white;border:none;border-radius:5px;font-size:16px;font-weight:bold;cursor:pointer;transition:background 0.3s}
+.btn:hover{background:#096dd9}
+.btn-success{background:#52c41a}
+.btn-success:hover{background:#389e0d}
+.btn-danger{background:#ff4d4f}
+.btn-danger:hover{background:#d9363e}
+.error{color:#ff4d4f;margin-top:10px;padding:10px;background:#fff2f0;border:1px solid #ffccc7;border-radius:5px;display:none}
+.main-container{display:none;max-width:1200px;margin:0 auto}
+.main-header{background:white;padding:15px 20px;margin-bottom:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center}
+.tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:12px 24px;background:white;border:1px solid #ddd;border-radius:5px;cursor:pointer;font-weight:bold;transition:all 0.3s}
+.tab:hover{background:#f5f5f5}
+.tab.active{background:#1890ff;color:white;border-color:#1890ff}
+.content{background:white;padding:25px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);min-height:400px}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th{background:#fafafa;padding:12px;text-align:left;border-bottom:1px solid #ddd;font-weight:bold}
+td{padding:12px;border-bottom:1px solid #f0f0f0}
+tr:hover{background:#fafafa}
+.badge{padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;color:white;display:inline-block}
+.action-btn{padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:14px;margin-right:5px}
+.action-btn-primary{background:#1890ff;color:white}
+.action-btn-danger{background:#ff4d4f;color:white}
+.action-btn-success{background:#52c41a;color:white}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;margin-bottom:30px}
+.stat-card{background:white;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);text-align:center}
+.stat-card .number{font-size:32px;font-weight:bold;color:#1890ff;margin-bottom:10px}
+.stat-card .label{color:#666;font-size:14px}
+.locked-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;color:white;text-align:center;padding:20px}
+.lock-icon{font-size:80px;margin-bottom:20px;color:#d32f2f}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;justify-content:center;align-items:center}
+.modal-content{background:white;padding:30px;border-radius:10px;width:90%;max-width:400px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:20px;font-weight:bold}
+.tab-content{display:none}
+
+/* 新增：云端同步相关样式 */
+.cloud-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.cloud-online {
+    background: #52c41a;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.cloud-offline {
+    background: #fa8c16;
+    color: white;
+}
+
+.cloud-error {
+    background: #ff4d4f;
+    color: white;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.sync-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.sync-green { background: #52c41a; }
+.sync-yellow { background: #fa8c16; }
+.sync-red { background: #ff4d4f; }
+
+.device-badge {
+    background: #1890ff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 10px;
+}
+
+.realtime-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    border-left: 4px solid #1890ff;
+    z-index: 9998;
+    animation: slideIn 0.3s ease;
+    max-width: 300px;
+    display: none;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.conflict-modal {
+    background: #fff7e6;
+    border: 2px solid #fa8c16;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.conflict-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* 数据同步页面样式 */
+.sync-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.sync-progress {
+    height: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.sync-progress-bar {
+    height: 100%;
+    background: #52c41a;
+    width: 0%;
+    transition: width 0.3s;
+}
+</style>
+</head>
+<body>
+<!-- 云端状态指示器 -->
+<div id="cloudStatus" class="cloud-status cloud-offline">
+    <span class="sync-indicator sync-red"></span>
+    <span id="cloudStatusText">云端离线</span>
+</div>
+
+<!-- 实时通知 -->
+<div id="realtimeNotification" class="realtime-notification">
+    <div style="font-weight:bold;margin-bottom:5px;">实时更新</div>
+    <div id="notificationMessage"></div>
+</div>
+
+<!-- 创建云端服务器密码验证 -->
+<div id="cloudCreatePasswordModal" class="modal">
+<div class="modal-content"><div class="modal-header"><div class="modal-title">创建云端服务器权限验证</div>
+<button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button></div>
+<div class="form-group"><label>请输入创建服务器密码</label><input type="password" id="cloudServerCreatePassword" placeholder="请输入创建服务器密码"></div>
+<button class="btn btn-success" onclick="checkCloudCreateServerPassword()">验证密码</button>
+<div class="error" id="cloudPasswordError" style="margin-top:10px"></div></div></div>
+
+<!-- 覆盖云端服务器确认 -->
+<div id="overwriteCloudModal" class="modal">
+<div class="modal-content"><div class="modal-header"><div class="modal-title" style="color:#fa8c16">⚠️ 覆盖云端服务器</div>
+<button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button></div>
+<div style="margin-bottom:20px">
+<p><strong>警告：该云端访问码已存在服务器！</strong></p>
+<p style="margin:10px 0;color:#ff4d4f">覆盖将删除原有服务器及其所有数据！</p>
+<div style="background:#fff7e6;padding:15px;border-radius:5px;margin:15px 0">
+<p style="margin-bottom:5px"><strong>原有服务器信息：</strong></p>
+<p style="font-size:14px;margin:5px 0">服务器名称: <span id="existingServerName">-</span></p>
+<p style="font-size:14px;margin:5px 0">创建时间: <span id="existingServerTime">-</span></p>
+<p style="font-size:14px;margin:5px 0">用户数量: <span id="existingServerUsers">-</span></p>
+<p style="font-size:14px;margin:5px 0">职位数量: <span id="existingServerPositions">-</span></p>
+</div>
+<p style="color:#fa8c16;font-weight:bold;margin:10px 0">确定要覆盖并删除原有数据吗？</p>
+</div>
+<div style="display:flex;gap:10px">
+<button class="btn btn-danger" onclick="executeOverwriteCloud()">确认覆盖</button>
+<button class="btn" onclick="closeModal()">取消</button>
+</div></div></div>
+
+<!-- 云端数据同步冲突处理 -->
+<div id="conflictModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">数据冲突解决</div>
+<button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+</div>
+<div class="conflict-modal">
+<p style="margin-bottom:10px"><strong>检测到本地和云端数据不一致</strong></p>
+<p style="margin-bottom:15px">请选择如何处理：</p>
+<div class="conflict-actions">
+<button class="btn btn-primary" onclick="resolveConflict('local')">使用本地数据</button>
+<button class="btn btn-success" onclick="resolveConflict('cloud')">使用云端数据</button>
+<button class="btn" onclick="resolveConflict('merge')">智能合并</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 锁定界面 -->
+<div id="lockScreen" class="locked-screen" style="display:none">
+<div class="lock-icon">🔒</div>
+<h1 style="font-size:32px;margin-bottom:20px">系统已锁定</h1>
+<p style="font-size:18px;margin-bottom:30px">由于多次尝试失败，系统已被锁定</p>
+<div style="background:rgba(255,255,255,0.1);padding:30px;border-radius:15px">
+<p style="font-size:16px;margin-bottom:10px">剩余锁定时间：</p>
+<p style="font-size:48px;font-weight:bold;font-family:monospace" id="lockTime">00:00</p>
+</div>
+<p style="margin-top:30px;font-size:14px;color:#ccc">锁定期间无法访问系统</p>
+</div>
+
+<!-- 系统访问验证 -->
+<div id="authContainer">
+<div class="auth-header">
+<div style="font-size:48px;margin-bottom:15px">🔐</div>
+<h1 style="font-size:28px;margin:0">军事职位管理系统</h1>
+<p style="margin-top:10px;opacity:0.9;font-size:14px">云端多设备同步版</p>
+</div>
+<div class="auth-body">
+<div class="auth-title">系统访问验证</div>
+<div class="auth-subtitle">请输入系统访问密钥以继续</div>
+<div class="secret-input">
+<span class="secret-icon">🔑</span>
+<input type="password" id="secretCode" placeholder="请输入系统访问密钥" onkeypress="if(event.key==='Enter')checkSecretCode()">
+</div>
+<button class="auth-button" onclick="checkSecretCode()">验证并进入</button>
+<div class="auth-note">
+<div style="font-weight:bold;margin-bottom:8px;color:#d32f2f">⚠️ 安全提示</div>
+<div style="margin-bottom:5px">• 剩余尝试次数：<span id="attemptsLeft" style="font-weight:bold;color:#d32f2f">3</span> 次</div>
+<div style="margin-bottom:5px">• 失败3次将锁定系统30分钟</div>
+<div>• 请勿泄露系统访问密钥</div>
+</div>
+<div class="auth-error" id="authError"></div>
+<div class="auth-success" id="authSuccess"></div>
+</div>
+</div>
+
+<!-- 服务器登录/创建界面 -->
+<div id="loginContainer" class="container">
+<div class="header">
+<h1 style="margin:0;font-size:24px">服务器访问</h1>
+<p style="margin-top:8px;opacity:0.9;font-size:14px">支持云端多设备同步</p>
+</div>
+<div class="body">
+<div class="form-group">
+<label>服务器访问码（8-16位字母数字）</label>
+<input type="text" id="serverKey" placeholder="请输入服务器访问码" maxlength="16">
+</div>
+<div class="form-group">
+<label>用户账号</label>
+<input type="text" id="username" placeholder="请输入用户账号">
+</div>
+<div class="form-group">
+<label>用户密码</label>
+<input type="password" id="password" placeholder="请输入密码" onkeypress="if(event.key==='Enter')login()">
+</div>
+<button class="btn" onclick="login()">登录服务器</button>
+<button class="btn btn-success" onclick="showCreateServer()">创建新服务器</button>
+<div class="error" id="loginError"></div>
+</div>
+</div>
+
+<!-- 创建服务器界面 -->
+<div id="createContainer" class="container">
+<div class="header">
+<h1 style="margin:0;font-size:24px">创建新服务器</h1>
+</div>
+<div class="body">
+<div class="form-group">
+<label>服务器名称</label>
+<input type="text" id="newServerName" placeholder="请输入服务器名称">
+</div>
+<div class="form-group">
+<label>服务器访问码（8-16位字母数字）</label>
+<input type="text" id="newServerKey" placeholder="请输入服务器访问码（建议使用复杂组合）" maxlength="16">
+<small style="color:#666;display:block;margin-top:5px">访问码用于标识服务器，请妥善保管</small>
+</div>
+<div class="form-group">
+<label>管理员账号</label>
+<input type="text" id="newUsername" placeholder="请输入管理员账号">
+</div>
+<div class="form-group">
+<label>管理员密码</label>
+<input type="password" id="newPassword" placeholder="请输入管理员密码">
+</div>
+<div class="form-group">
+<label>
+<input type="checkbox" id="isCloudServerCheck" style="width:auto;margin-right:8px">
+创建为云端服务器（支持多设备同步）
+</label>
+<small style="color:#666;display:block;margin-top:5px">云端服务器数据存储在云端，可在多个设备间同步</small>
+</div>
+<button class="btn btn-success" onclick="createServer()">创建服务器</button>
+<button class="btn" onclick="backToLogin()">返回登录</button>
+<div class="error" id="createError"></div>
+</div>
+</div>
+
+<!-- 主界面 -->
+<div id="mainContainer" class="main-container">
+<div class="main-header">
+<div>
+<h2 style="margin:0" id="serverTitle">服务器管理</h2>
+<small id="userInfo" style="color:#666"></small>
+<span id="cloudServerBadge" class="device-badge" style="display:none">☁️ 云端服务器</span>
+</div>
+<div>
+<button class="btn" onclick="logout()" style="width:auto;padding:10px 20px">退出登录</button>
+</div>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="switchTab('dashboard')">📊 仪表盘</div>
+<div class="tab" onclick="switchTab('personnel')">👥 人员管理</div>
+<div class="tab" onclick="switchTab('promote')">⬆️ 职位晋升</div>
+<div class="tab" onclick="switchTab('users')">🔐 用户管理</div>
+<div class="tab" onclick="switchTab('logs')">📝 操作日志</div>
+<div class="tab" onclick="switchTab('sync')" id="syncTab" style="display:none">☁️ 数据同步</div>
+<div class="tab" onclick="switchTab('settings')">⚙️ 系统设置</div>
+</div>
+
+<!-- 仪表盘 -->
+<div id="dashboardTab" class="tab-content" style="display:block">
+<h3 style="margin-bottom:20px">系统概览</h3>
+<div class="stats">
+<div class="stat-card">
+<div class="number" id="totalPersonnel">0</div>
+<div class="label">总人数</div>
+</div>
+<div class="stat-card">
+<div class="number" id="totalUsers">0</div>
+<div class="label">用户数</div>
+</div>
+<div class="stat-card">
+<div class="number" id="totalLogs">0</div>
+<div class="label">操作记录</div>
+</div>
+</div>
+<h4 style="margin-top:30px;margin-bottom:15px">最近操作</h4>
+<div id="recentLogs"></div>
+</div>
+
+<!-- 人员管理 -->
+<div id="personnelTab" class="tab-content">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+<h3 style="margin:0">人员列表</h3>
+<button class="btn btn-success" onclick="showAddPersonnel()" style="width:auto;padding:10px 20px">➕ 添加人员</button>
+</div>
+<table id="personnelTable">
+<thead>
+<tr>
+<th>姓名</th>
+<th>职位</th>
+<th>军衔</th>
+<th>状态</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- 职位晋升 -->
+<div id="promoteTab" class="tab-content">
+<h3 style="margin-bottom:20px">职位晋升管理</h3>
+<div class="form-group">
+<label>选择人员</label>
+<select id="promoteSelect" onchange="updatePromoteInfo()">
+<option value="">请选择人员</option>
+</select>
+</div>
+<div id="promoteInfo" style="display:none;background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:20px">
+<h4 style="margin-bottom:15px">当前信息</h4>
+<p style="margin-bottom:10px"><strong>当前职位：</strong><span id="currentPosition"></span></p>
+<p style="margin-bottom:10px"><strong>当前军衔：</strong><span id="currentRank"></span></p>
+</div>
+<div class="form-group">
+<label>新职位</label>
+<select id="newPosition">
+<option value="">请选择新职位</option>
+</select>
+</div>
+<div class="form-group">
+<label>新军衔</label>
+<select id="newRank">
+<option value="">请选择新军衔</option>
+</select>
+</div>
+<button class="btn btn-success" onclick="promotePersonnel()">确认晋升</button>
+</div>
+
+<!-- 用户管理 -->
+<div id="usersTab" class="tab-content">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+<h3 style="margin:0">用户列表</h3>
+<button class="btn btn-success" onclick="showAddUser()" style="width:auto;padding:10px 20px">➕ 添加用户</button>
+</div>
+<table id="usersTable">
+<thead>
+<tr>
+<th>用户名</th>
+<th>角色</th>
+<th>状态</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- 操作日志 -->
+<div id="logsTab" class="tab-content">
+<h3 style="margin-bottom:20px">操作日志</h3>
+<table id="logsTable">
+<thead>
+<tr>
+<th style="width:180px">时间</th>
+<th>操作</th>
+<th>操作人</th>
+<th>详情</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- 数据同步页面 -->
+<div id="syncTab-content" class="tab-content">
+<h3 style="margin-bottom:20px">☁️ 云端数据同步</h3>
+
+<div class="sync-section">
+<h4 style="margin-bottom:15px">同步状态</h4>
+<div style="display:flex;align-items:center;gap:15px;margin-bottom:15px">
+<div>
+<span class="sync-indicator" id="syncStatusIndicator"></span>
+<strong id="syncStatusText">检查中...</strong>
+</div>
+<button class="btn btn-primary" onclick="manualSync()" style="width:auto;padding:8px 16px">🔄 手动同步</button>
+</div>
+<div style="font-size:14px;color:#666">
+<p style="margin:5px 0">最后同步: <span id="lastSyncTime">从未</span></p>
+<p style="margin:5px 0">服务器: <span id="currentServerInfo">-</span></p>
+<p style="margin:5px 0">设备标识: <span id="deviceId">-</span></p>
+</div>
+</div>
+
+<div class="sync-section">
+<h4 style="margin-bottom:15px">同步设置</h4>
+<div style="margin-bottom:15px">
+<label style="display:flex;align-items:center;gap:10px">
+<input type="checkbox" id="autoSyncEnabled" onchange="toggleAutoSync()" style="width:auto">
+<span>启用自动同步（每30秒）</span>
+</label>
+</div>
+<div style="margin-bottom:15px">
+<label style="display:flex;align-items:center;gap:10px">
+<input type="checkbox" id="conflictNotification" style="width:auto">
+<span>冲突时显示通知</span>
+</label>
+</div>
+</div>
+
+<div class="sync-section">
+<h4 style="margin-bottom:15px">数据统计</h4>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px">
+<div style="background:white;padding:15px;border-radius:8px">
+<div style="color:#666;font-size:14px;margin-bottom:5px">本地记录数</div>
+<div style="font-size:24px;font-weight:bold;color:#1890ff" id="localRecordCount">0</div>
+</div>
+<div style="background:white;padding:15px;border-radius:8px">
+<div style="color:#666;font-size:14px;margin-bottom:5px">云端记录数</div>
+<div style="font-size:24px;font-weight:bold;color:#52c41a" id="cloudRecordCount">0</div>
+</div>
+<div style="background:white;padding:15px;border-radius:8px">
+<div style="color:#666;font-size:14px;margin-bottom:5px">待同步更改</div>
+<div style="font-size:24px;font-weight:bold;color:#fa8c16" id="pendingChanges">0</div>
+</div>
+</div>
+</div>
+
+<div class="sync-section">
+<h4 style="margin-bottom:15px">同步历史</h4>
+<div id="syncHistory" style="max-height:300px;overflow-y:auto">
+<p style="color:#999;text-align:center;padding:20px">暂无同步历史</p>
+</div>
+</div>
+</div>
+
+<!-- 系统设置 -->
+<div id="settingsTab" class="tab-content">
+<h3 style="margin-bottom:20px">系统设置</h3>
+
+<div style="background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:20px">
+<h4 style="margin-bottom:15px">服务器信息</h4>
+<p style="margin-bottom:10px"><strong>服务器名称：</strong><span id="settingsServerName">-</span></p>
+<p style="margin-bottom:10px"><strong>服务器访问码：</strong><span id="settingsServerKey">-</span></p>
+<p style="margin-bottom:10px"><strong>创建时间：</strong><span id="settingsCreateTime">-</span></p>
+<p style="margin-bottom:10px"><strong>创建者：</strong><span id="settingsCreator">-</span></p>
+<p style="margin-bottom:10px"><strong>服务器类型：</strong><span id="settingsServerType">-</span></p>
+</div>
+
+<div style="background:#fff7e6;padding:20px;border-radius:8px;border-left:4px solid #fa8c16;margin-bottom:20px">
+<h4 style="margin-bottom:15px;color:#fa8c16">⚠️ 危险操作</h4>
+<p style="margin-bottom:15px;color:#666">以下操作将永久删除服务器及其所有数据，请谨慎操作</p>
+<button class="btn btn-danger" onclick="showDeleteModal()" style="width:auto;padding:10px 20px">🗑️ 删除服务器</button>
+</div>
+</div>
+</div>
+
+<!-- 添加人员模态框 -->
+<div id="addPersonnelModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">添加人员</div>
+<button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+</div>
+<div class="form-group">
+<label>姓名</label>
+<input type="text" id="personnelName" placeholder="请输入姓名">
+</div>
+<div class="form-group">
+<label>职位</label>
+<select id="personnelPosition">
+<option value="">请选择职位</option>
+</select>
+</div>
+<div class="form-group">
+<label>军衔</label>
+<select id="personnelRank">
+<option value="">请选择军衔</option>
+</select>
+</div>
+<button class="btn btn-success" onclick="addPersonnel()">确认添加</button>
+</div>
+</div>
+
+<!-- 添加用户模态框 -->
+<div id="addUserModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">添加用户</div>
+<button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+</div>
+<div class="form-group">
+<label>用户名</label>
+<input type="text" id="newUserUsername" placeholder="请输入用户名">
+</div>
+<div class="form-group">
+<label>密码</label>
+<input type="password" id="newUserPassword" placeholder="请输入密码">
+</div>
+<div class="form-group">
+<label>角色</label>
+<select id="newUserRole">
+<option value="admin">管理员</option>
+<option value="user">普通用户</option>
+</select>
+</div>
+<button class="btn btn-success" onclick="addUser()">确认添加</button>
+</div>
+</div>
+
+<!-- 删除服务器确认模态框 -->
+<div id="deleteModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title" style="color:#ff4d4f">⚠️ 删除服务器</div>
+<button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+</div>
+<div style="margin-bottom:20px">
+<p style="color:#ff4d4f;font-weight:bold;margin-bottom:15px">警告：此操作无法撤销！</p>
+<p style="margin-bottom:10px">您即将删除服务器：<strong id="deleteServerName">-</strong></p>
+<p style="margin-bottom:15px">删除后将永久丢失所有数据，包括：</p>
+<ul style="margin-left:20px;color:#666">
+<li>所有人员信息</li>
+<li>所有用户账号</li>
+<li>所有操作日志</li>
+<li>服务器配置</li>
+</ul>
+</div>
+<div class="form-group">
+<label>请输入您的密码以确认删除</label>
+<input type="password" id="deleteConfirmPassword" placeholder="请输入您的密码">
+</div>
+<button class="btn btn-danger" onclick="confirmDeleteServer()">确认删除</button>
+<button class="btn" onclick="closeModal()">取消</button>
+</div>
+</div>
+
+<script>
+// ==================== 全局变量 ====================
+const SYSTEM_SECRET = '123456';
+const CLOUD_SERVER_CREATE_PASSWORD = '1235';
+const MAX_ATTEMPTS = 5;
+const LOCK_TIME = 30 * 60 * 1000;
+
+let failedAttempts = 0;
+let lockUntil = 0;
+let currentUser = null;
+let currentServer = null;
+let serverData = { info: null, users: [], personnel: [], logs: [] };
+
+// 云端同步相关变量
+let isCloudServer = false;
+let cloudSyncEnabled = false;
+let syncIntervalId = null;
+let deviceId = generateDeviceId();
+
+// 云端配置
+const CLOUD_CONFIG = {
+    CLOUD_PREFIX: 'cloud_',
+    SYNC_INTERVAL: 30000,
+    MAX_CONFLICT_RETRIES: 3
+};
+
+// ==================== 职位和军衔数据 ====================
+const positions = [
+    { id: 1, name: '士兵' },
+    { id: 2, name: '班长' },
+    { id: 3, name: '排长' },
+    { id: 4, name: '连长' },
+    { id: 5, name: '营长' },
+    { id: 6, name: '团长' },
+    { id: 7, name: '旅长' },
+    { id: 8, name: '师长' },
+    { id: 9, name: '军长' }
+];
+
+const ranks = [
+    { id: 1, name: '列兵', color: '#8c8c8c' },
+    { id: 2, name: '上等兵', color: '#595959' },
+    { id: 3, name: '下士', color: '#1890ff' },
+    { id: 4, name: '中士', color: '#096dd9' },
+    { id: 5, name: '上士', color: '#0050b3' },
+    { id: 6, name: '少尉', color: '#52c41a' },
+    { id: 7, name: '中尉', color: '#389e0d' },
+    { id: 8, name: '上尉', color: '#237804' },
+    { id: 9, name: '少校', color: '#fa8c16' },
+    { id: 10, name: '中校', color: '#d46b08' },
+    { id: 11, name: '上校', color: '#ad4e00' },
+    { id: 12, name: '少将', color: '#ff4d4f' },
+    { id: 13, name: '中将', color: '#cf1322' },
+    { id: 14, name: '上将', color: '#a8071a' }
+];
+
+// ==================== 初始化 ====================
+window.onload = function() {
+    loadAttempts();
+    if (!checkLockStatus()) return;
+    
+    const savedUser = localStorage.getItem('currentUser');
+    const savedServerKey = localStorage.getItem('currentServerKey');
+    
+    if (savedUser && savedServerKey) {
+        currentUser = JSON.parse(savedUser);
+        const serverKey = savedServerKey;
+        
+        // 检查是否是云端服务器
+        const cloudData = localStorage.getItem(CLOUD_CONFIG.CLOUD_PREFIX + serverKey);
+        if (cloudData) {
+            isCloudServer = true;
+            currentServer = { key: serverKey, isCloud: true };
+            serverData = JSON.parse(cloudData);
+            cloudSyncEnabled = true;
+            updateCloudStatus('online');
+            startAutoSync();
+        } else {
+            const localData = localStorage.getItem('server_' + serverKey);
+            if (localData) {
+                isCloudServer = false;
+                currentServer = { key: serverKey, isCloud: false };
+                serverData = JSON.parse(localData);
+                updateCloudStatus('offline');
+            } else {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('currentServerKey');
+                return;
+            }
+        }
+        
+        document.getElementById('authContainer').style.display = 'none';
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'block';
+        initMainInterface();
+    }
+    
+    setTimeout(() => {
+        document.getElementById('secretCode').focus();
+    }, 100);
+};
+
+// ==================== 设备ID生成 ====================
+function generateDeviceId() {
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+        deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('deviceId', deviceId);
+    }
+    return deviceId;
+}
+
+// ==================== 云端状态管理 ====================
+function updateCloudStatus(status) {
+    const statusDiv = document.getElementById('cloudStatus');
+    const statusText = document.getElementById('cloudStatusText');
+    const indicator = statusDiv.querySelector('.sync-indicator');
+    
+    statusDiv.className = 'cloud-status';
+    
+    switch(status) {
+        case 'online':
+            statusDiv.classList.add('cloud-online');
+            statusText.textContent = '☁️ 云端在线';
+            indicator.className = 'sync-indicator sync-green';
+            break;
+        case 'offline':
+            statusDiv.classList.add('cloud-offline');
+            statusText.textContent = '📱 本地模式';
+            indicator.className = 'sync-indicator sync-yellow';
+            break;
+        case 'syncing':
+            statusDiv.classList.add('cloud-online');
+            statusText.textContent = '🔄 同步中...';
+            indicator.className = 'sync-indicator sync-green';
+            break;
+        case 'error':
+            statusDiv.classList.add('cloud-error');
+            statusText.textContent = '❌ 同步错误';
+            indicator.className = 'sync-indicator sync-red';
+            break;
+    }
+}
+
+// ==================== 实时通知 ====================
+function showNotification(message, duration = 3000) {
+    const notification = document.getElementById('realtimeNotification');
+    const messageDiv = document.getElementById('notificationMessage');
+    
+    messageDiv.textContent = message;
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, duration);
+}
+
+// ==================== 自动同步 ====================
+function startAutoSync() {
+    if (!isCloudServer || !cloudSyncEnabled) return;
+    
+    if (syncIntervalId) {
+        clearInterval(syncIntervalId);
+    }
+    
+    syncIntervalId = setInterval(() => {
+        syncWithCloud();
+    }, CLOUD_CONFIG.SYNC_INTERVAL);
+}
+
+function syncWithCloud() {
+    if (!isCloudServer || !currentServer) return;
+    
+    updateCloudStatus('syncing');
+    
+    setTimeout(() => {
+        const cloudData = localStorage.getItem(CLOUD_CONFIG.CLOUD_PREFIX + currentServer.key);
+        if (cloudData) {
+            const parsedData = JSON.parse(cloudData);
+            
+            if (parsedData.info && parsedData.info.lastSync !== serverData.info.lastSync) {
+                serverData = parsedData;
+                loadPersonnelList();
+                loadUsersList();
+                updateDashboard();
+                showNotification('✅ 数据已从云端同步');
+            }
+        }
+        
+        updateCloudStatus('online');
+    }, 500);
+}
+
+function manualSync() {
+    if (!isCloudServer) {
+        alert('当前服务器不是云端服务器');
+        return;
+    }
+    
+    syncWithCloud();
+    showNotification('🔄 手动同步完成');
+}
+
+function toggleAutoSync() {
+    const enabled = document.getElementById('autoSyncEnabled').checked;
+    
+    if (enabled) {
+        cloudSyncEnabled = true;
+        startAutoSync();
+        showNotification('✅ 自动同步已启用');
+    } else {
+        cloudSyncEnabled = false;
+        if (syncIntervalId) {
+            clearInterval(syncIntervalId);
+            syncIntervalId = null;
+        }
+        showNotification('⏸️ 自动同步已暂停');
+    }
+}
+
+// ==================== 系统访问验证 ====================
+function checkSecretCode() {
+    const code = document.getElementById('secretCode').value.trim();
+    const errorDiv = document.getElementById('authError');
+    const successDiv = document.getElementById('authSuccess');
+    
+    if (!code) {
+        errorDiv.textContent = '请输入系统访问密钥';
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        return;
+    }
+    
+    if (code === SYSTEM_SECRET) {
+        successDiv.textContent = '✓ 验证成功！正在进入系统...';
+        successDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        
+        failedAttempts = 0;
+        saveAttempts();
+        updateAttemptsDisplay();
+        
+        setTimeout(() => {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('serverKey').focus();
+        }, 1000);
+    } else {
+        failedAttempts++;
+        saveAttempts();
+        updateAttemptsDisplay();
+        
+        const attemptsLeft = MAX_ATTEMPTS - failedAttempts;
+        
+        if (attemptsLeft <= 0) {
+            errorDiv.textContent = '❌ 失败次数过多，系统已锁定30分钟';
+            errorDiv.style.display = 'block';
+            successDiv.style.display = 'none';
+            lockSystem();
+        } else {
+            errorDiv.textContent = `❌ 密钥错误！剩余 ${attemptsLeft} 次尝试机会`;
+            errorDiv.style.display = 'block';
+            successDiv.style.display = 'none';
+        }
+        
+        document.getElementById('secretCode').value = '';
+        document.getElementById('secretCode').focus();
+    }
+}
+
+// ==================== 服务器登录 ====================
+function login() {
+    const serverKey = document.getElementById('serverKey').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorDiv = document.getElementById('loginError');
+    
+    if (!serverKey || !username || !password) {
+        errorDiv.textContent = '请填写完整信息';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (!/^[a-zA-Z0-9]{8,16}$/.test(serverKey)) {
+        errorDiv.textContent = '服务器访问码格式错误（8-16位字母数字）';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // 先检查云端服务器
+    const cloudData = localStorage.getItem(CLOUD_CONFIG.CLOUD_PREFIX + serverKey);
+    if (cloudData) {
+        const data = JSON.parse(cloudData);
+        const user = data.users.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+            isCloudServer = true;
+            currentServer = { key: serverKey, isCloud: true };
+            currentUser = user;
+            serverData = data;
+            
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('currentServerKey', serverKey);
+            
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            
+            cloudSyncEnabled = true;
+            updateCloudStatus('online');
+            startAutoSync();
+            
+            initMainInterface();
+            return;
+        }
+    }
+    
+    // 检查本地服务器
+    const localData = localStorage.getItem('server_' + serverKey);
+    if (localData) {
+        const data = JSON.parse(localData);
+        const user = data.users.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+            isCloudServer = false;
+            currentServer = { key: serverKey, isCloud: false };
+            currentUser = user;
+            serverData = data;
+            
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('currentServerKey', serverKey);
+            
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            
+            updateCloudStatus('offline');
+            
+            initMainInterface();
+            return;
+        }
+    }
+    
+    errorDiv.textContent = '服务器不存在或用户名密码错误';
+    errorDiv.style.display = 'block';
+}
+
+// ==================== 显示创建服务器界面 ====================
+function showCreateServer() {
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('createContainer').style.display = 'block';
+    document.getElementById('newServerName').focus();
+}
+
+function backToLogin() {
+    document.getElementById('createContainer').style.display = 'none';
+    document.getElementById('loginContainer').style.display = 'block';
+    document.getElementById('createError').style.display = 'none';
+    document.getElementById('serverKey').focus();
+}
+
+// ==================== 创建服务器 ====================
+function createServer() {
+    const serverName = document.getElementById('newServerName').value.trim();
+    const serverKey = document.getElementById('newServerKey').value.trim();
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const isCloud = document.getElementById('isCloudServerCheck').checked;
+    const errorDiv = document.getElementById('createError');
+    
+    if (!serverName || !serverKey || !username || !password) {
+        errorDiv.textContent = '请填写完整信息';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (!/^[a-zA-Z0-9]{8,16}$/.test(serverKey)) {
+        errorDiv.textContent = '服务器访问码格式错误（8-16位字母数字）';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // 如果是云端服务器，需要验证创建权限
+    if (isCloud) {
+        // 检查是否已存在同名云端服务器
+        const existingCloudData = localStorage.getItem(CLOUD_CONFIG.CLOUD_PREFIX + serverKey);
+        if (existingCloudData) {
+            const existing = JSON.parse(existingCloudData);
+            document.getElementById('existingServerName').textContent = existing.info.name;
+            document.getElementById('existingServerTime').textContent = new Date(existing.info.createdAt).toLocaleString();
+            document.getElementById('existingServerUsers').textContent = existing.users.length;
+            document.getElementById('existingServerPositions').textContent = existing.personnel ? existing.personnel.length : 0;
+            
+            // 保存创建信息以便覆盖时使用
+            window.pendingCloudServer = { serverName, serverKey, username, password };
+            
+            document.getElementById('overwriteCloudModal').style.display = 'flex';
+            return;
+        }
+        
+        // 如果不存在，验证创建密码
+        window.pendingCloudServer = { serverName, serverKey, username, password };
+        document.getElementById('cloudServerCreatePassword').value = '';
+        document.getElementById('cloudPasswordError').style.display = 'none';
+        document.getElementById('cloudCreatePasswordModal').style.display = 'flex';
+        return;
+    }
+    
+    // 创建本地服务器
+    const localKey = 'server_' + serverKey;
+    if (localStorage.getItem(localKey)) {
+        errorDiv.textContent = '该服务器访问码已被使用';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    executeCreateServer(serverName, serverKey, username, password, false);
+}
+
+// ==================== 验证云端创建密码 ====================
+function checkCloudCreateServerPassword() {
+    const password = document.getElementById('cloudServerCreatePassword').value;
+    const errorDiv = document.getElementById('cloudPasswordError');
+    
+    if (password !== CLOUD_SERVER_CREATE_PASSWORD) {
+        errorDiv.textContent = '创建服务器密码错误';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    closeModal();
+    
+    const { serverName, serverKey, username, password: userPassword } = window.pendingCloudServer;
+    executeCreateServer(serverName, serverKey, username, userPassword, true);
+}
+
+// ==================== 执行覆盖云端服务器 ====================
+function executeOverwriteCloud() {
+    closeModal();
+    
+    // 验证创建密码
+    window.pendingCloudServer.isOverwrite = true;
+    document.getElementById('cloudServerCreatePassword').value = '';
+    document.getElementById('cloudPasswordError').style.display = 'none';
+    document.getElementById('cloudCreatePasswordModal').style.display = 'flex';
+}
+
+// ==================== 执行创建服务器 ====================
+function executeCreateServer(serverName, serverKey, username, password, isCloud) {
+    const userId = Date.now().toString();
+    
+    const newServer = {
+        info: {
+            name: serverName,
+            key: serverKey,
+            createdAt: new Date().toISOString(),
+            creatorId: userId,
+            lastSync: new Date().toISOString(),
+            isCloud: isCloud
+        },
+        users: [{
+            id: userId,
+            username: username,
+            password: password,
+            role: 'admin',
+            status: 'active'
+        }],
+        personnel: [],
+        logs: [{
+            action: '创建服务器',
+            user: username,
+            timestamp: new Date().toISOString(),
+            details: `创建${isCloud ? '云端' : '本地'}服务器: ${serverName}`
+        }]
+    };
+    
+    const storageKey = isCloud ? CLOUD_CONFIG.CLOUD_PREFIX + serverKey : 'server_' + serverKey;
+    localStorage.setItem(storageKey, JSON.stringify(newServer));
+    
+    isCloudServer = isCloud;
+    currentServer = { key: serverKey, isCloud: isCloud };
+    currentUser = newServer.users[0];
+    serverData = newServer;
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    localStorage.setItem('currentServerKey', serverKey);
+    
+    document.getElementById('createContainer').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'block';
+    
+    if (isCloud) {
+        cloudSyncEnabled = true;
+        updateCloudStatus('online');
+        startAutoSync();
+    } else {
+        updateCloudStatus('offline');
+    }
+    
+    initMainInterface();
+}
+
+// ==================== 初始化主界面 ====================
+function initMainInterface() {
+    document.getElementById('serverTitle').textContent = serverData.info.name;
+    document.getElementById('userInfo').textContent = `${currentUser.username} (${currentUser.role === 'admin' ? '管理员' : '普通用户'})`;
+    
+    if (isCloudServer) {
+        document.getElementById('cloudServerBadge').style.display = 'inline-block';
+        document.getElementById('syncTab').style.display = 'block';
+    } else {
+        document.getElementById('cloudServerBadge').style.display = 'none';
+        document.getElementById('syncTab').style.display = 'none';
+    }
+    
+    populateSelects();
+    loadPersonnelList();
+    loadUsersList();
+    updateDashboard();
+    loadSettingsInfo();
+    
+    // 更新同步页面信息
+    if (isCloudServer) {
+        updateSyncPageInfo();
+    }
+}
+
+// ==================== 更新同步页面信息 ====================
+function updateSyncPageInfo() {
+    document.getElementById('lastSyncTime').textContent = 
+        serverData.info.lastSync ? new Date(serverData.info.lastSync).toLocaleString() : '从未';
+    document.getElementById('currentServerInfo').textContent = serverData.info.name;
+    document.getElementById('deviceId').textContent = deviceId;
+    
+    const syncStatus = cloudSyncEnabled ? 'online' : 'offline';
+    const syncIndicator = document.getElementById('syncStatusIndicator');
+    const syncStatusText = document.getElementById('syncStatusText');
+    
+    if (syncStatus === 'online') {
+        syncIndicator.className = 'sync-indicator sync-green';
+        syncStatusText.textContent = '在线同步';
+    } else {
+        syncIndicator.className = 'sync-indicator sync-yellow';
+        syncStatusText.textContent = '离线模式';
+    }
+    
+    document.getElementById('autoSyncEnabled').checked = cloudSyncEnabled;
+    
+    document.getElementById('localRecordCount').textContent = serverData.personnel ? serverData.personnel.length : 0;
+    document.getElementById('cloudRecordCount').textContent = serverData.personnel ? serverData.personnel.length : 0;
+    document.getElementById('pendingChanges').textContent = '0';
+}
+
+// ==================== 填充下拉选项 ====================
+function populateSelects() {
+    const personnelPosition = document.getElementById('personnelPosition');
+    const personnelRank = document.getElementById('personnelRank');
+    const newPosition = document.getElementById('newPosition');
+    const newRank = document.getElementById('newRank');
+    
+    personnelPosition.innerHTML = '<option value="">请选择职位</option>';
+    newPosition.innerHTML = '<option value="">请选择新职位</option>';
+    positions.forEach(pos => {
+        personnelPosition.innerHTML += `<option value="${pos.id}">${pos.name}</option>`;
+        newPosition.innerHTML += `<option value="${pos.id}">${pos.name}</option>`;
+    });
+    
+    personnelRank.innerHTML = '<option value="">请选择军衔</option>';
+    newRank.innerHTML = '<option value="">请选择新军衔</option>';
+    ranks.forEach(rank => {
+        personnelRank.innerHTML += `<option value="${rank.id}">${rank.name}</option>`;
+        newRank.innerHTML += `<option value="${rank.id}">${rank.name}</option>`;
+    });
+}
+
+// ==================== 切换标签页 ====================
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+    
+    event.target.classList.add('active');
+    
+    if (tabName === 'sync') {
+        document.getElementById('syncTab-content').style.display = 'block';
+        if (isCloudServer) {
+            updateSyncPageInfo();
+        }
+    } else {
+        document.getElementById(tabName + 'Tab').style.display = 'block';
+    }
+}
+
+// ==================== 人员管理 ====================
+function showAddPersonnel() {
+    document.getElementById('personnelName').value = '';
+    document.getElementById('personnelPosition').value = '';
+    document.getElementById('personnelRank').value = '';
+    document.getElementById('addPersonnelModal').style.display = 'flex';
+}
+
+function addPersonnel() {
+    const name = document.getElementById('personnelName').value.trim();
+    const positionId = parseInt(document.getElementById('personnelPosition').value);
+    const rankId = parseInt(document.getElementById('personnelRank').value);
+    
+    if (!name || !positionId || !rankId) {
+        alert('请填写完整信息');
+        return;
+    }
+    
+    const personnel = {
+        id: Date.now().toString(),
+        name: name,
+        positionId: positionId,
+        rankId: rankId,
+        status: 'active'
+    };
+    
+    if (!serverData.personnel) {
+        serverData.personnel = [];
+    }
+    
+    serverData.personnel.push(personnel);
+    saveServerData();
+    
+    addLog('添加人员', currentUser.username, `添加人员: ${name}`);
+    
+    loadPersonnelList();
+    loadPromoteList();
+    updateDashboard();
+    
+    closeModal();
+    
+    if (isCloudServer) {
+        showNotification(`✅ 已添加人员: ${name}`);
+    }
+}
+
+function loadPersonnelList() {
+    const tbody = document.querySelector('#personnelTable tbody');
+    tbody.innerHTML = '';
+    
+    if (!serverData.personnel || serverData.personnel.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999">暂无人员</td></tr>';
+        return;
+    }
+    
+    serverData.personnel.forEach(p => {
+        const position = positions.find(pos => pos.id === p.positionId);
+        const rank = ranks.find(r => r.id === p.rankId);
+        
+        tbody.innerHTML += `
+            <tr>
+                <td>${p.name}</td>
+                <td>${position ? position.name : '-'}</td>
+                <td><span class="badge" style="background:${getRankColor(p.rankId)}">${rank ? rank.name : '-'}</span></td>
+                <td>${p.status === 'active' ? '在职' : '离职'}</td>
+                <td>
+                    <button class="action-btn action-btn-danger" onclick="removePersonnel('${p.id}')">删除</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function removePersonnel(id) {
+    if (!confirm('确定要删除此人员吗？')) return;
+    
+    const person = serverData.personnel.find(p => p.id === id);
+    if (!person) return;
+    
+    serverData.personnel = serverData.personnel.filter(p => p.id !== id);
+    saveServerData();
+    
+    addLog('删除人员', currentUser.username, `删除人员: ${person.name}`);
+    
+    loadPersonnelList();
+    loadPromoteList();
+    updateDashboard();
+    
+    if (isCloudServer) {
+        showNotification(`🗑️ 已删除人员: ${person.name}`);
+    }
+}
+
+// ==================== 职位晋升 ====================
+function loadPromoteList() {
+    const select = document.getElementById('promoteSelect');
+    select.innerHTML = '<option value="">请选择人员</option>';
+    
+    if (!serverData.personnel) return;
+    
+    serverData.personnel.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+    });
+}
+
+function updatePromoteInfo() {
+    const personId = document.getElementById('promoteSelect').value;
+    const infoDiv = document.getElementById('promoteInfo');
+    
+    if (!personId) {
+        infoDiv.style.display = 'none';
+        return;
+    }
+    
+    const person = serverData.personnel.find(p => p.id === personId);
+    if (!person) return;
+    
+    document.getElementById('currentPosition').textContent = positions.find(p => p.id === person.positionId)?.name || '-';
+    document.getElementById('currentRank').innerHTML = `<span class="badge" style="background:${getRankColor(person.rankId)}">${getRankName(person.rankId)}</span>`;
+    
+    infoDiv.style.display = 'block';
+}
+
+function promotePersonnel() {
+    const personId = document.getElementById('promoteSelect').value;
+    const newPositionId = parseInt(document.getElementById('newPosition').value);
+    const newRankId = parseInt(document.getElementById('newRank').value);
+    
+    if (!personId || !newPositionId || !newRankId) {
+        alert('请填写完整信息');
+        return;
+    }
+    
+    const person = serverData.personnel.find(p => p.id === personId);
+    if (!person) return;
+    
+    const oldPosition = getRankName(person.positionId);
+    const oldRank = getRankName(person.rankId);
+    
+    person.positionId = newPositionId;
+    person.rankId = newRankId;
+    
+    saveServerData();
+    
+    addLog('职位晋升', currentUser.username, 
+        `${person.name}: ${oldPosition}/${oldRank} → ${positions.find(p => p.id === newPositionId).name}/${getRankName(newRankId)}`);
+    
+    loadPersonnelList();
+    updatePromoteInfo();
+    updateDashboard();
+    
+    alert('晋升成功！');
+    
+    if (isCloudServer) {
+        showNotification(`⬆️ ${person.name} 已晋升`);
+    }
+}
+
+// ==================== 用户管理 ====================
+function showAddUser() {
+    if (currentUser.role !== 'admin') {
+        alert('只有管理员可以添加用户');
+        return;
+    }
+    
+    document.getElementById('newUserUsername').value = '';
+    document.getElementById('newUserPassword').value = '';
+    document.getElementById('newUserRole').value = 'user';
+    document.getElementById('addUserModal').style.display = 'flex';
+}
+
+function addUser() {
+    const username = document.getElementById('newUserUsername').value.trim();
+    const password = document.getElementById('newUserPassword').value.trim();
+    const role = document.getElementById('newUserRole').value;
+    
+    if (!username || !password) {
+        alert('请填写完整信息');
+        return;
+    }
+    
+    if (serverData.users.some(u => u.username === username)) {
+        alert('用户名已存在');
+        return;
+    }
+    
+    const user = {
+        id: Date.now().toString(),
+        username: username,
+        password: password,
+        role: role,
+        status: 'active'
+    };
+    
+    serverData.users.push(user);
+    saveServerData();
+    
+    addLog('添加用户', currentUser.username, `添加用户: ${username} (${role})`);
+    
+    loadUsersList();
+    updateDashboard();
+    
+    closeModal();
+    
+    if (isCloudServer) {
+        showNotification(`✅ 已添加用户: ${username}`);
+    }
+}
+
+function loadUsersList() {
+    const tbody = document.querySelector('#usersTable tbody');
+    tbody.innerHTML = '';
+    
+    serverData.users.forEach(u => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${u.username}</td>
+                <td>${u.role === 'admin' ? '管理员' : '普通用户'}</td>
+                <td>${u.status === 'active' ? '正常' : '禁用'}</td>
+                <td>
+                    ${u.id !== currentUser.id && currentUser.role === 'admin' ? 
+                        `<button class="action-btn action-btn-danger" onclick="removeUser('${u.id}')">删除</button>` : 
+                        '-'}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function removeUser(id) {
+    if (!confirm('确定要删除此用户吗？')) return;
+    
+    const user = serverData.users.find(u => u.id === id);
+    if (!user) return;
+    
+    serverData.users = serverData.users.filter(u => u.id !== id);
+    saveServerData();
+    
+    addLog('删除用户', currentUser.username, `删除用户: ${user.username}`);
+    
+    loadUsersList();
+    updateDashboard();
+    
+    if (isCloudServer) {
+        showNotification(`🗑️ 已删除用户: ${user.username}`);
+    }
+}
+
+// ==================== 仪表盘 ====================
+function updateDashboard() {
+    document.getElementById('totalPersonnel').textContent = serverData.personnel ? serverData.personnel.length : 0;
+    document.getElementById('totalUsers').textContent = serverData.users.length;
+    document.getElementById('totalLogs').textContent = serverData.logs.length;
+    
+    const logsDiv = document.getElementById('recentLogs');
+    logsDiv.innerHTML = '';
+    
+    const recentLogs = serverData.logs.slice(-5).reverse();
+    
+    if (recentLogs.length === 0) {
+        logsDiv.innerHTML = '<p style="text-align:center;color:#999;padding:20px">暂无操作记录</p>';
+        return;
+    }
+    
+    logsDiv.innerHTML = '<table style="width:100%"><tbody>' +
+        recentLogs.map(log => `
+            <tr>
+                <td style="width:180px;color:#666;font-size:14px">${new Date(log.timestamp).toLocaleString()}</td>
+                <td style="font-weight:bold">${log.action}</td>
+                <td style="color:#666">${log.user}</td>
+                <td style="color:#999;font-size:14px">${log.details}</td>
+            </tr>
+        `).join('') +
+        '</tbody></table>';
+    
+    loadLogsTable();
+}
+
+function loadLogsTable() {
+    const tbody = document.querySelector('#logsTable tbody');
+    tbody.innerHTML = '';
+    
+    const allLogs = [...serverData.logs].reverse();
+    
+    if (allLogs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999">暂无操作记录</td></tr>';
+        return;
+    }
+    
+    allLogs.forEach(log => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                <td>${log.action}</td>
+                <td>${log.user}</td>
+                <td>${log.details}</td>
+            </tr>
+        `;
+    });
+}
+
+// ==================== 设置 ====================
+function loadSettingsInfo() {
+    if (!serverData.info) return;
+    
+    document.getElementById('settingsServerName').textContent = serverData.info.name;
+    document.getElementById('settingsServerKey').textContent = serverData.info.key;
+    document.getElementById('settingsCreateTime').textContent = new Date(serverData.info.createdAt).toLocaleString();
+    
+    const creator = serverData.users.find(u => u.id === serverData.info.creatorId);
+    document.getElementById('settingsCreator').textContent = creator ? creator.username : '-';
+    document.getElementById('settingsServerType').textContent = serverData.info.isCloud ? '☁️ 云端服务器' : '📱 本地服务器';
+}
+
+// ==================== 模态框控制 ====================
+function closeModal() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+}
+
+// ==================== 退出登录 ====================
+function logout() {
+    if (!confirm('确定要退出登录吗？')) return;
+    
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentServerKey');
+    
+    if (syncIntervalId) {
+        clearInterval(syncIntervalId);
+        syncIntervalId = null;
+    }
+    
+    currentUser = null;
+    currentServer = null;
+    serverData = { info: null, users: [], personnel: [], logs: [] };
+    isCloudServer = false;
+    cloudSyncEnabled = false;
+    
+    document.getElementById('mainContainer').style.display = 'none';
+    document.getElementById('loginContainer').style.display = 'block';
+    
+    updateCloudStatus('offline');
+    
+    document.getElementById('serverKey').value = '';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    
+    document.getElementById('serverKey').focus();
+}
+
+// ==================== 删除服务器 ====================
+function canDeleteServer() {
+    if (!currentServer || !serverData.info) return false;
+    
+    const user = serverData.users.find(u => u.id === currentUser.id);
+    if (!user) return false;
+    
+    if (user.id === serverData.info.creatorId) {
+        return true;
+    }
+    
+    if (isCloudServer) {
+        loadPersonnelList();
+        loadPromoteList();
+        updateDashboard();
+    }
+}
+
+function showDeleteModal() {
+    if (!currentServer || !serverData.info) return;
+    
+    const user = serverData.users.find(u => u.id === currentUser.id);
+    if (!user || user.id !== serverData.info.creatorId) {
+        alert('只有服务器创建者可以删除服务器');
+        return;
+    }
+    
+    document.getElementById('deleteServerName').textContent = serverData.info.name;
+    document.getElementById('deleteConfirmPassword').value = '';
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function confirmDeleteServer() {
+    const password = document.getElementById('deleteConfirmPassword').value;
+    const user = serverData.users.find(u => u.id === currentUser.id);
+    
+    if (!user || user.password !== password) {
+        alert('密码错误');
+        return;
+    }
+    
+    if (confirm('⚠️ 最后确认！删除服务器将永久删除所有数据！确定继续吗？')) {
+        if (isCloudServer) {
+            localStorage.removeItem(CLOUD_CONFIG.CLOUD_PREFIX + currentServer.key);
+        } else {
+            localStorage.removeItem('server_' + currentServer.key);
+        }
+        
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('currentServerKey');
+        
+        alert('服务器删除成功！');
+        
+        currentUser = null;
+        currentServer = null;
+        serverData = { info: null, users: [], logs: [] };
+        isCloudServer = false;
+        cloudSyncEnabled = false;
+        
+        if (syncIntervalId) {
+            clearInterval(syncIntervalId);
+            syncIntervalId = null;
+        }
+        
+        document.getElementById('mainContainer').style.display = 'none';
+        document.getElementById('loginContainer').style.display = 'block';
+        closeModal();
+        
+        document.getElementById('secretCode').value = '';
+        document.getElementById('secretCode').focus();
+    }
+}
+
+// 冲突解决函数（简化）
+function resolveConflict(choice) {
+    document.getElementById('conflictModal').style.display = 'none';
+    showNotification(`使用${choice === 'local' ? '本地' : choice === 'cloud' ? '云端' : '合并'}数据`);
+}
+
+// ==================== 修改保存服务器数据函数 ====================
+
+// 修改保存服务器数据函数
+function saveServerData() {
+    if (!currentServer || !currentServer.key) return;
+    
+    // 更新最后同步时间
+    if (serverData.info) {
+        serverData.info.lastSync = new Date().toISOString();
+    }
+    
+    // 根据服务器类型保存
+    if (isCloudServer) {
+        localStorage.setItem(CLOUD_CONFIG.CLOUD_PREFIX + currentServer.key, JSON.stringify(serverData));
+    } else {
+        localStorage.setItem('server_' + currentServer.key, JSON.stringify(serverData));
+    }
+}
+
+// ==================== 保持原有的辅助函数 ====================
+function getRankName(rankId) {
+    const rank = ranks.find(r => r.id === rankId);
+    return rank ? rank.name : '未知';
+}
+
+function getRankColor(rankId) {
+    const rank = ranks.find(r => r.id === rankId);
+    return rank ? rank.color : '#8c8c8c';
+}
+
+function addLog(action, user, details) {
+    const log = {
+        action: action,
+        user: user,
+        timestamp: new Date().toISOString(),
+        details: details
+    };
+    
+    serverData.logs.push(log);
+    if (serverData.logs.length > 100) {
+        serverData.logs = serverData.logs.slice(-100);
+    }
+    
+    saveServerData();
+    
+    if (document.getElementById('dashboardTab').style.display !== 'none') {
+        updateDashboard();
+    }
+}
+
+// ==================== 原有的锁定系统函数 ====================
+function checkLockStatus() {
+    const now = Date.now();
+    const lockData = localStorage.getItem('system_lock');
+    
+    if (lockData) {
+        const lockInfo = JSON.parse(lockData);
+        lockUntil = lockInfo.lockUntil;
+        
+        if (now < lockUntil) {
+            showLockScreen(lockUntil - now);
+            return false;
+        } else {
+            localStorage.removeItem('system_lock');
+            localStorage.removeItem('failed_attempts');
+            failedAttempts = 0;
+            updateAttemptsDisplay();
+            hideLockScreen();
+            return true;
+        }
+    }
+    
+    hideLockScreen();
+    return true;
+}
+
+function showLockScreen(remainingTime) {
+    const lockScreen = document.getElementById('lockScreen');
+    const lockTimeSpan = document.getElementById('lockTime');
+    
+    lockScreen.style.display = 'flex';
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'none';
+    
+    function updateCountdown() {
+        const now = Date.now();
+        const timeLeft = lockUntil - now;
+        
+        if (timeLeft <= 0) {
+            hideLockScreen();
+            return;
+        }
+        
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        lockTimeSpan.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        setTimeout(updateCountdown, 1000);
+    }
+    
+    updateCountdown();
+}
+
+function hideLockScreen() {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('authContainer').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('secretCode').focus();
+    }, 100);
+}
+
+function loadAttempts() {
+    const attemptsData = localStorage.getItem('failed_attempts');
+    failedAttempts = attemptsData ? parseInt(attemptsData) || 0 : 0;
+    updateAttemptsDisplay();
+}
+
+function saveAttempts() {
+    localStorage.setItem('failed_attempts', failedAttempts.toString());
+}
+
+function lockSystem() {
+    lockUntil = Date.now() + LOCK_TIME;
+    localStorage.setItem('system_lock', JSON.stringify({
+        lockUntil: lockUntil,
+        lockedAt: new Date().toISOString()
+    }));
+    showLockScreen(LOCK_TIME);
+}
+
+function updateAttemptsDisplay() {
+    const attemptsLeft = MAX_ATTEMPTS - failedAttempts;
+    document.getElementById('attemptsLeft').textContent = attemptsLeft;
+    
+    if (attemptsLeft <= 1) {
+        document.getElementById('attemptsLeft').style.color = '#d32f2f';
+        document.getElementById('attemptsLeft').style.fontWeight = 'bold';
+    } else if (attemptsLeft <= 2) {
+        document.getElementById('attemptsLeft').style.color = '#f57c00';
+    } else {
+        document.getElementById('attemptsLeft').style.color = '#666';
+    }
+}
+
+</script>
+</body>
+</html>
